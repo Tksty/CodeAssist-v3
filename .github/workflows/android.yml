@@ -23,16 +23,18 @@ jobs:
       run: chmod +x gradlew
 
     - name: Build APK without Tests
-      run: ./gradlew assembleDebug -x test # Build APK and skip tests
+      run: ./gradlew build -x test # Build APK and skip tests
 
     - name: Create Release Directory
       run: mkdir -p CodeAssist-v3/build/outputs/release
 
-    - name: Move APK to Release Directory
-      run: mv CodeAssist-v3/build/outputs/apk/debug/app-debug.apk CodeAssist-v3/build/outputs/release/ || true # Move APK to release directory
+    - name: Move and Rename APK to Release Directory
+      run: |
+        # Move the APK to the release directory and rename it
+        mv CodeAssist-v3/build/outputs/apk/debug/app-debug.apk CodeAssist-v3/build/outputs/release/app-debug.apk || true
 
     - name: Upload APK
       uses: actions/upload-artifact@v3
       with:
         name: app-debug.apk
-        path: CodeAssist-v3/build/outputs/release/*.apk # Adjust the path if necessary
+        path: CodeAssist-v3/build/outputs/release/app-debug.apk # Path to the renamed APK
