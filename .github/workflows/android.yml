@@ -24,10 +24,7 @@ jobs:
 
     - name: Build APK without Tests
       run: ./gradlew build -x test # Build APK and skip tests
-
-    - name: Create Release Directory
-      run: mkdir -p CodeAssist-v3/build/outputs/release
-
+      
     - name: Move and Rename APK to Release Directory
       run: |
         # Move the APK to the release directory and rename it
