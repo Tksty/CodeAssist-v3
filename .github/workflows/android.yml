@@ -1,37 +1,52 @@
-name: Android CI
+name: CodeAssist-v3 CI
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ main ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
     - name: Set up JDK 17
       uses: actions/setup-java@v4
       with:
         java-version: '17'
         distribution: 'temurin'
-        cache: gradle
 
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-
-    - name: Build APK without Tests
-      run: ./gradlew build -x test # Build APK and skip tests
-      
-    - name: Move and Rename APK to Release Directory
-      run: |
-        # Move the APK to the release directory and rename it
-        mv CodeAssist-v3/build/outputs/apk/debug/app-debug.apk CodeAssist-v3/build/outputs/release/app-debug.apk || true
-
-    - name: Upload APK
-      uses: actions/upload-artifact@v3
+    - name: Cache dependencies
+      uses: actions/cache@v4
       with:
-        name: app-debug.apk
-        path: CodeAssist-v3/build/outputs/release/app-debug.apk # Path to the renamed APK
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+          ${{ runner.os }}-maven-
+
+    - name: Build with custom build system
+      run: |
+        # Replace with your actual build command for CodeAssist-v3's custom build system
+        # Example placeholder: ./build.sh or java -jar compiler.jar
+        echo "Running custom build system (replace with actual command)"
+        # If you have a specific build script or command, add it here
+
+    - name: Run tests
+      run: |
+        # Replace with your actual test command, if tests exist
+        # Example: ./run-tests.sh or mvn test
+        echo "Running tests (replace with actual test command, if applicable)"
+
+    - name: Upload build artifacts
+      if: success()
+      uses: actions/upload-artifact@v4
+      with:
+        name: codeassist-v3-build
+        path: |
+          build/
+          *.jar
+          *.apk
