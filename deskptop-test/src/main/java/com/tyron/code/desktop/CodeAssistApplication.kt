@@ -18,13 +18,22 @@ import javafx.scene.Scene
 import javafx.scene.control.SplitPane
 import javafx.scene.layout.BorderPane
 import javafx.stage.Stage
-import org.koin.core.component.getScopeId
+import org.koin.core.context.startKoin
+import org.koin.dsl.module
 import org.koin.java.KoinJavaComponent.getKoin
 import org.koin.java.KoinJavaComponent.inject
 import org.kordamp.ikonli.carbonicons.CarbonIcons
 import org.slf4j.event.Level
 import java.nio.file.Paths
 
+// Define Koin module
+val appModule = module {
+    single { WorkspaceManager() }
+    single { WelcomePane() }
+    single { WorkspaceRootPane() }
+    single { NavigationManager() }
+    // Add other necessary dependencies here
+}
 
 class CodeAssistApplication : Application(), WorkspaceCloseListener, WorkspaceOpenListener {
 
@@ -34,7 +43,13 @@ class CodeAssistApplication : Application(), WorkspaceCloseListener, WorkspaceOp
     private val root = BorderPane()
     private val welcomePane: WelcomePane by inject(WelcomePane::class.java)
     private val workspaceRootPane: WorkspaceRootPane by inject(WorkspaceRootPane::class.java)
+
     override fun start(stage: Stage) {
+        // Initialize Koin before using any injected components
+        startKoin {
+            modules(appModule) // Initialize Koin with your modules
+        }
+
         setUserAgentStylesheet("/style/codeassist.css")
 
         Logging.setInterceptLevel(Level.DEBUG)
@@ -61,11 +76,11 @@ class CodeAssistApplication : Application(), WorkspaceCloseListener, WorkspaceOp
         stage.show()
 
         eagerInit()
-
         testInit()
     }
 
     private fun eagerInit() {
+        // This is safe now that Koin is initialized
         getKoin().get<NavigationManager>()
     }
 
