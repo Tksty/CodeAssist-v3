@@ -58,4 +58,3 @@ jobs:
             !**/build/test-results/**
             !**/build/reports/tests/**
             !**/build/outputs/apk/** # Exclude APKs to avoid duplication
-```
