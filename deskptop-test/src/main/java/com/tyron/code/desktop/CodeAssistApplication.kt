@@ -1,5 +1,3 @@
-package com.tyron.code.desktop
-
 import com.tyron.code.desktop.services.navigation.NavigationManager
 import com.tyron.code.desktop.ui.control.FontIconView
 import com.tyron.code.desktop.ui.docking.DockingManager
@@ -26,28 +24,28 @@ import org.kordamp.ikonli.carbonicons.CarbonIcons
 import org.slf4j.event.Level
 import java.nio.file.Paths
 
-// Define Koin module
+// Koin module definition
 val appModule = module {
-    single { WorkspaceManager() }
+    single<WorkspaceManager> { WorkspaceManagerImpl() } // Concrete implementation for WorkspaceManager
     single { WelcomePane() }
-    single { WorkspaceRootPane() }
+    single { WorkspaceRootPane(get()) } // Inject WorkspaceManager into WorkspaceRootPane
+    single { DockingManager() } // Ensure DockingManager is available
     single { NavigationManager() }
-    // Add other necessary dependencies here
 }
 
 class CodeAssistApplication : Application(), WorkspaceCloseListener, WorkspaceOpenListener {
 
     private val logger = Logging.get(CodeAssistApplication::class.java)
 
-    private val workspaceManager: WorkspaceManager by inject(WorkspaceManager::class.java)
+    private val workspaceManager: WorkspaceManager by inject() // Injecting WorkspaceManager
     private val root = BorderPane()
-    private val welcomePane: WelcomePane by inject(WelcomePane::class.java)
-    private val workspaceRootPane: WorkspaceRootPane by inject(WorkspaceRootPane::class.java)
+    private val welcomePane: WelcomePane by inject()
+    private val workspaceRootPane: WorkspaceRootPane by inject()
 
     override fun start(stage: Stage) {
-        // Initialize Koin before using any injected components
+        // Initialize Koin
         startKoin {
-            modules(appModule) // Initialize Koin with your modules
+            modules(appModule)
         }
 
         setUserAgentStylesheet("/style/codeassist.css")
@@ -80,7 +78,6 @@ class CodeAssistApplication : Application(), WorkspaceCloseListener, WorkspaceOp
     }
 
     private fun eagerInit() {
-        // This is safe now that Koin is initialized
         getKoin().get<NavigationManager>()
     }
 
